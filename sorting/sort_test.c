@@ -5,6 +5,8 @@
 
 void bubble_sort(int array[], size_t len);
 void merge_sort(int array[], size_t begin, size_t end, int *buf);
+void heap_sort(int array[], size_t count);
+void quick_sort(int array[], size_t start, size_t end);
 
 int main(int argc, char **argv)
 {
@@ -36,6 +38,8 @@ int main(int argc, char **argv)
 		insert_sort(array, count);
 	} else if (strcmp(argv[1], "heap") == 0) {
 		heap_sort(array, count);
+	} else if (strcmp(argv[1], "quick") == 0) {
+		quick_sort(array, 0, count);
 	} else {
 		fprintf(stderr, "unknown sort algorithm\n");
 		exit(-1);
