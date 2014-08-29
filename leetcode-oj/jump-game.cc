@@ -6,32 +6,12 @@ using namespace std;
 class Solution {
 public:
     bool canJump(int A[], int n) {
-        if (n < 2) {
-            return true;
+        int max = 0;
+        for (int i = 0; i < n && i <= max; ++i) {
+            if (A[i] + i > max) max = A[i] + i;
+            if (A[i] + i >= n - 1) return true;
         }
-        vector<bool> visited(n, false);
-        set<int> now;
-        now.insert(0);
-        while (now.empty() == false) {
-            int i = *now.rbegin();
-            cout << i << endl;
-            now.erase(i);
-            visited[i] = true;
-            int max = i + A[i];
-            if (max >= n) {
-                max = n - 1;
-            }
-            while (max > i) {
-                if (max == n - 1) {
-                    return true;
-                }
-                if (visited[max] == false) {
-                    now.insert(max);
-                }
-                --max;
-            }
-        }
-        return false;
+        return max >= n - 1;
     }
 };
 
