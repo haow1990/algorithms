@@ -9,24 +9,25 @@ struct TreeLinkNode {
 class Solution {
 public:
     void connect(TreeLinkNode *root) {
-        if (root == nullptr) {
-            return;
-        }
-        queue<TreeLinkNode*> q;
-        q.push(root);
-        q.push(nullptr);
-        while (q.empty() == false) {
-            TreeLinkNode *current = q.front();
-            q.pop();
-            if (current == nullptr)    continue;
-            current->next = q.front();
-            if (current->left)  q.push(current->left);
-            if (current->right) q.push(current->right);
-            if (q.front() == nullptr) {
-                q.push(nullptr);
-                q.pop();
+        while (root != nullptr) {
+            TreeLinkNode dummyLeftMost(0);
+            TreeLinkNode *nextLayerIter = &dummyLeftMost;
+            TreeLinkNode *currentLayerIter = root;
+            while (currentLayerIter != nullptr) {
+                if (currentLayerIter->left != nullptr) {
+                    nextLayerIter->next = currentLayerIter->left;
+                    nextLayerIter = currentLayerIter->left;
+                }
+                if (currentLayerIter->right != nullptr) {
+                    nextLayerIter->next = currentLayerIter->right;
+                    nextLayerIter = currentLayerIter->right;
+                }
+                currentLayerIter = currentLayerIter->next;
             }
+            root = dummyLeftMost.next;
         }
+    
+
     }
 };
 
