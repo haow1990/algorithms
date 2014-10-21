@@ -3,61 +3,62 @@
 #include <climits>
 #include <map>
 #include <utility>
+#include <unordered_map>
 using namespace std;
 
+#include <tuple>
 class Solution {
 public:
     string minWindow(string S, string T) {
-        string result;
-        if (T.empty() || T.size() > S.size()) {
-            return result;
+        if (T.empty()) {
+            return T;
         }
-        map<char, pair<int, int> > idx;
+        //      wanted char   wanted  got
+        unordered_map<char, tuple<int, int> > cmap;
         for (char c : T) {
-            auto iter = idx.find(c);
-            if (iter != idx.end()) {
-                iter->second.first += 1;
-            } else {
-                idx[c] = make_pair(1, 0);
-            }
+            auto iter = cmap.insert(make_pair(c, make_tuple(0, 0))).first;
+            get<0>(iter->second) += 1;
+            cout << c << ' ' << get<0>(iter->second) << endl;
         }
-        int found = 0;
-        int lastMin = -1;
-        for (size_t i = 0; i < S.size(); ++i) {
-            auto iter = idx.find(S[i]);
-            if (iter == idx.end()) {
+        string result;
+        // left means current start of substring
+        int left = 0;
+        int unfinished_chars = cmap.size();
+        for (int right = 0; right < S.size(); ++right) {
+            auto cmapiter = cmap.find(S[right]);
+            if (cmapiter == cmap.end()) {
                 continue;
             }
-            if (lastMin < 0) {
-                lastMin = i;
+            get<1>(cmapiter->second) += 1;
+            if (get<1>(cmapiter->second) == get<0>(cmapiter->second)) {
+                --unfinished_chars;
             }
-            iter->second.second += 1;
-            if (iter->second.second == iter->second.first) {
-                found += 1;
-            }
-            if (found < idx.size()) {
+            if (unfinished_chars > 0) {
                 continue;
             }
-            while (lastMin < i){
-                auto iter = idx.find(S[lastMin]);
-                if (iter != idx.end()) {
-                    auto &pr = iter->second;
-                    if (pr.first < pr.second) {
-                        --pr.second;
-                    } else {
-                        break;
-                    }
+            // S[left..right] contains all the chars in T
+            // move left pointer towards right to find the shortest
+            while (left < right) {
+                auto leftiter = cmap.find(S[left]);
+                if (leftiter == cmap.end()) {
+                    ++left;
+                    continue;
                 }
-                ++lastMin;
+                if (get<1>(leftiter->second) > get<0>(leftiter->second)) {
+                    get<1>(leftiter->second) -= 1;
+                    ++left;
+                } else {
+                    break;
+                }
             }
-            if (result.empty() || i - lastMin + 1 < result.size()) {
-                result = S.substr(lastMin, i - lastMin + 1);
+            if (result.empty() || right - left + 1 < result.size()) {
+                result = S.substr(left, right - left + 1);
             }
         }
+        
         return result;
     }
 };
-
 int main(int argc, char **argv)
 {
     string S(argv[1]);
