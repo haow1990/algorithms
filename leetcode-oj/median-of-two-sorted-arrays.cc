@@ -4,53 +4,37 @@ using namespace std;
 
 class Solution {
 public:
-    double findMedianSortedArrays(int A[], int m, int B[], int n) {
-        if (m + n <= 0) {
-            return 0.0;
+    int min(int x, int y) {
+        return (x < y) ? x : y;
+    }
+
+    int findKth(int A[], int m, int B[], int n, int k) {
+        if (m > n) {
+            return findKth(B, n, A, m, k);
         }
-        int mid = (m + n - 1) / 2;
-        int i = 0, j = 0;
-        while (i + j < mid && i < m && j < n) {
-            if (A[i] < B[j]) {
-                ++i;
-            } else {
-                ++j;
-            }
+        if (m == 0) {
+            return B[k-1];
         }
-        int left = mid - (i + j);
-        if (i == m) {
-            if ((m + n) % 2 == 1) {
-                return B[j + left];
-            } else {
-                return (B[j + left] + B[j + 1 + left]) / 2.0;
-            }
+        if (k == 1) {
+            return min(A[0], B[0]);
         }
-        if (j == n) {
-            if ((m + n) % 2 == 1) {
-                return A[i + left];
-            } else {
-                return (A[i + left] + A[i + 1 + left]) / 2.0;
-            }
-        }
-        if ((m + n) % 2 == 1) {
-            return A[i] < B[j] ? A[i] : B[j];
+        int pa = min(k / 2, m);
+        int pb = k - pa;
+        if (A[pa-1] == B[pb-1]) {
+            return A[pa-1];
+        } else if (A[pa-1] < B[pb-1]) {
+            return findKth(A+pa, m-pa, B, n, k-pa);
         } else {
-            int min1, min2;
-            if (A[i] < B[j]) {
-                min1 = A[i];
-                ++i;
-            } else {
-                min1 = B[j];
-                ++j;
-            }
-            if (i == m) {
-                min2 = B[j];
-            } else if (j == n) {
-                min2 = A[i];
-            } else {
-                min2 = A[i] < B[j] ? A[i] : B[j];
-            }
-            return (min1 + min2) / 2.0;
+            return findKth(A, m, B+pb, n-pb, k-pb);
+        }
+    }
+    
+    double findMedianSortedArrays(int A[], int m, int B[], int n) {
+        int len = m + n;
+        if (len % 2 != 0) {
+            return findKth(A, m, B, n, len / 2 + 1);
+        } else {
+            return (findKth(A, m, B, n, len / 2) + findKth(A, m, B, n, len / 2 + 1)) / 2.0;
         }
     }
 };
