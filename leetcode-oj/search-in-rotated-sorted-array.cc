@@ -4,43 +4,31 @@ using namespace std;
 
 class Solution {
 public:
-    int binary(int a[], int start, int end, int target)
-    {
-        if (start >= end)
-            return -1;
-        int mid = (start + end) / 2;
-        if (target == a[mid])
-            return mid;
-        else if (target > a[mid])
-            return binary(a, mid + 1, end, target);
-        else
-            return binary(a, start, mid, target);
-    }
-
-    int search(int a[], int start, int end, int target)
-    {
-        if (start >= end)
-            return -1;
-        int mid = (start + end) / 2;
-        if (target == a[mid])
-            return mid;
-        if (mid + 1 == end)
-            return search(a, start, mid, target);
-        if (start == mid)
-            return search(a, mid+1, end, target);
-        if (a[start] <= a[mid-1] && target <= a[mid-1] && target >= a[start])
-            return binary(a, start, mid, target);
-        if (a[mid] <= a[end-1] && target >= a[mid+1] && target <= a[end-1])
-            return binary(a, mid + 1, end, target);
-        int re = search(a, start, mid, target);
-        if (re >= 0)
-            return re;
-        else
-            return search(a, mid+1, end, target);
-    }
-
     int search(int A[], int n, int target) {
-        return search(A, 0, n, target);
+        int left = 0;
+        int right = n - 1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (A[mid] == target) {
+                return mid;
+            }
+            // if A[left..mid] is ordered
+            if (A[left] < A[mid]) {
+                if (left < mid && A[left] <= target && target <= A[mid-1]) {
+                    right = mid - 1;
+                } else {
+                    left = mid + 1;
+                }
+            } else { // right part is ordered
+                if (mid < right && A[mid+1] <= target && target <= A[right]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+        }
+        
+        return -1;
     }
 };
 
