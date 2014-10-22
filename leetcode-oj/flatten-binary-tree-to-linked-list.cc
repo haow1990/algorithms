@@ -10,23 +10,33 @@ struct TreeNode {
 
 class Solution {
 public:
-    void doFlatten(TreeNode *root, vector<TreeNode*> &vec)
-    {
-        vec.push_back(root);
-        if (root->left != nullptr)
-            doFlatten(root->left, vec);
-        if (root->right != nullptr)
-            doFlatten(root->right, vec);
-    }
-    void flatten(TreeNode *root) {
-        if (root == nullptr)
-            return;
-        vector<TreeNode*> vec;
-        doFlatten(root, vec);
-        vec.push_back(nullptr);
-        for (size_t i = 0; i < vec.size() - 1; ++i) {
-            vec[i]->left = nullptr;
-            vec[i]->right = vec[i+1];
+    // return my tail
+    TreeNode *doFlatten(TreeNode *root) {
+        if (root == nullptr) {
+            return nullptr;
         }
+        auto mytail = root;
+        auto myleft = root->left;
+        auto myright = root->right;
+        root->left = nullptr;
+        root->right = nullptr;
+        
+        if (myleft != nullptr) {
+            auto lefttail = doFlatten(myleft);
+            mytail->right = myleft;
+            mytail = lefttail;
+        }
+        
+        if (myright != nullptr) {
+            auto righttail = doFlatten(myright);
+            mytail->right = myright;
+            mytail = righttail;
+        }
+        
+        return mytail;
+    }
+    
+    void flatten(TreeNode *root) {
+        doFlatten(root);
     }
 };
