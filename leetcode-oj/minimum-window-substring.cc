@@ -13,50 +13,32 @@ public:
         if (T.empty()) {
             return T;
         }
-        //      wanted char   wanted  got
-        unordered_map<char, tuple<int, int> > cmap;
+        int desired[256] = {};
+        int existed[256] = {};
         for (char c : T) {
-            auto iter = cmap.insert(make_pair(c, make_tuple(0, 0))).first;
-            get<0>(iter->second) += 1;
-            cout << c << ' ' << get<0>(iter->second) << endl;
+            ++desired[c];
         }
+        int totalChars = count_if(desired, desired + 256, [](int val) {return val != 0;});
+        int start = 0;
         string result;
-        // left means current start of substring
-        int left = 0;
-        int unfinished_chars = cmap.size();
-        for (int right = 0; right < S.size(); ++right) {
-            auto cmapiter = cmap.find(S[right]);
-            if (cmapiter == cmap.end()) {
+        for (int i = 0; i < S.size(); ++i) {
+            ++existed[S[i]];
+            if (desired[S[i]] == existed[S[i]]) {
+                --totalChars;
+            }
+            if (totalChars > 0) {
                 continue;
             }
-            get<1>(cmapiter->second) += 1;
-            if (get<1>(cmapiter->second) == get<0>(cmapiter->second)) {
-                --unfinished_chars;
+            while (existed[S[start]] > desired[S[start]]) {
+                --existed[S[start]];
+                ++start;
             }
-            if (unfinished_chars > 0) {
-                continue;
-            }
-            // S[left..right] contains all the chars in T
-            // move left pointer towards right to find the shortest
-            while (left < right) {
-                auto leftiter = cmap.find(S[left]);
-                if (leftiter == cmap.end()) {
-                    ++left;
-                    continue;
-                }
-                if (get<1>(leftiter->second) > get<0>(leftiter->second)) {
-                    get<1>(leftiter->second) -= 1;
-                    ++left;
-                } else {
-                    break;
-                }
-            }
-            if (result.empty() || right - left + 1 < result.size()) {
-                result = S.substr(left, right - left + 1);
+            if (result.empty() || i - start + 1 < result.size()) {
+                result = S.substr(start, i - start + 1);
             }
         }
-        
         return result;
+    
     }
 };
 int main(int argc, char **argv)
