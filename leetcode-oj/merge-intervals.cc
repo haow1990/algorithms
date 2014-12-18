@@ -11,39 +11,32 @@ struct Interval {
     Interval(int s, int e) : start(s), end(e) {}
 };
 
-bool operator<(const Interval &a, const Interval &b)
-{
-    return a.start > b.start;
-}
-
 class Solution {
 public:
     vector<Interval> merge(vector<Interval> &intervals) {
         if (intervals.empty()) {
             return intervals;
         }
-        priority_queue<Interval> q;
-        for (auto &iter : intervals) {
-            q.push(iter);
-        }
-        vector<Interval> result;
-        result.push_back(q.top());
-        q.pop();
-        while (q.empty() == false) {
-            if (result.back().end >= q.top().start
-                    && result.back().start <= q.top().end) {
-                if (q.top().start < result.back().start) {
-                    result.back().start = q.top().start;
-                }
-                if (q.top().end > result.back().end) {
-                    result.back().end = q.top().end;
-                }
+        auto cmp = [](Interval v1, Interval v2) {
+            if (v1.start < v2.start) {
+                return true;
+            } else if (v1.start > v2.start) {
+                return false;
             } else {
-                result.push_back(q.top());
+                return v1.end < v2.end;
             }
-            q.pop();
+        };
+        sort(intervals.begin(), intervals.end(), cmp);
+        vector<Interval> res;
+        res.push_back(intervals.front());
+        for (int i = 1; i < intervals.size(); ++i) {
+            if (intervals[i].start > res.back().end) {
+                res.push_back(intervals[i]);
+            } else {
+                res.back().end = max(res.back().end, intervals[i].end);
+            }
         }
-        return result;
+        return res;
     }
 };
 

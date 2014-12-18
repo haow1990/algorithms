@@ -3,66 +3,39 @@
 #include <vector>
 using namespace std;
 
-/**
- * [start, end]
- */
-bool isPalindrome(const string &s, int start, int end, int *cache)
-{
-    if (start >= end) {
-        return true;
-    }
-    int idx = start * s.size() + end;
-    if (cache[idx] == -1) {
-        cache[idx] = 1;
-        while (start < end) {
-            if (s[start] != s[end]) {
-                cache[idx] = 0;
-                break;
-            }
-            ++start;
-            --end;
-        }
-    }
-    return cache[idx] == 1;
-}
-
-void doPartition(const string &s, size_t start, vector<vector<string> > &result, vector<string> &current, int *cache)
-{
-    if (start >= s.size()) {
-        result.push_back(current);
-        return;
-    }
-    current.push_back(s.substr(start, 1));
-    doPartition(s, start + 1, result, current, cache);
-    current.pop_back();
-    for (size_t len = 2; start + len <= s.size(); ++len) {
-        if (isPalindrome(s, start, start + len - 1, cache)) {
-            current.push_back(s.substr(start, len));
-            doPartition(s, start + len, result, current, cache);
-            current.pop_back();
-        }
-    }
-}
-
 class Solution {
 public:
-    vector<vector<string> > partition(string s) {
-        vector<vector<string> > result;
+    vector<vector<string>> partition(string s) {
         if (s.empty()) {
-            return result;
+            return vector<vector<string> >();
         }
-        vector<string> current;
-        // -1: not calculated
-        // 0 : not palindrome
-        // 1 : palidrome
-        int *cache = new int[s.size() * s.size()];
-        for (int i = 0; i < s.size() * s.size(); ++i) {
-            cache[i] = -1;
+        const int N = s.size();
+        // partition(s[i..]) => result[i]
+        vector<vector<vector<string> > > result(s.size());
+        vector<vector<bool> > palindrome(N, vector<bool>(N));
+        int end = N - 1;
+        for (int i = N - 1; i >= 0; --i) {
+            if (s[i] == s[end] && (end - i <= 2 || palindrome[i+1][end-1])) {
+                palindrome[i][end] = true;
+                result[i].push_back(vector<string>{s.substr(i)});
+            } else {
+                palindrome[i][end] = false;
+            }
+            for (int j = i; j < N - 1; ++j) {
+                if (s[i] == s[j] && (j - i <= 2 || palindrome[i+1][j-1])) {
+                    palindrome[i][j] = true;
+                    for (vector<string> &vec : result[j+1]) {
+                        result[i].push_back(vector<string>{s.substr(i, j-i+1)});
+                        result[i].back().insert(result[i].back().end(), vec.begin(), vec.end());
+                    }
+                } else {
+                    palindrome[i][j] = false;
+                }
+            } 
         }
-        doPartition(s, 0, result, current, cache);
-        delete cache;
-        return result;
+        return result[0];
     }
+
 };
 
 

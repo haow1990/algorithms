@@ -12,30 +12,25 @@ struct TreeNode {
 
 class Solution {
 public:
-    unordered_set<int> visited;
-    TreeNode *construct(vector<int> &inorder, size_t &i, vector<int> &postorder, size_t &j)
-    {
-        if (j >= inorder.size())
+    TreeNode *build(vector<int> &inorder, int ii, int ij, vector<int> &post, int &pi, unordered_map<int, int> &idxmap) {
+        if (ii > ij || pi < 0) {
             return nullptr;
-        TreeNode *node = new TreeNode(postorder[j]);
-        visited.insert(postorder[j]);
-        --j;
-        if (visited.count(inorder[i]) == 0) {
-            node->right = construct(inorder, i, postorder, j);
-        } else {
-            --i;
         }
-        if (visited.count(inorder[i]) == 0) {
-            node->left = construct(inorder, i, postorder, j);
-        } else {
-            --i;
-        }
-        return node;
+        int val = post[pi--];
+        int idx = idxmap[val];
+        auto root = new TreeNode(val);
+        root->right = build(inorder, idx + 1, ij, post, pi, idxmap);
+        root->left = build(inorder, ii, idx - 1, post, pi, idxmap);
+        return root;
     }
+    
     TreeNode *buildTree(vector<int> &inorder, vector<int> &postorder) {
-        visited.clear();
-        size_t i = inorder.size() - 1, j = postorder.size() - 1;
-        return construct(inorder, i, postorder, j);
+        unordered_map<int, int> idxmap;
+        for (int i = 0; i < inorder.size(); ++i) {
+            idxmap[inorder[i]] = i;
+        }
+        int pi = postorder.size() - 1;
+        return build(inorder, 0, inorder.size() - 1, postorder, pi, idxmap);
     }
 };
 

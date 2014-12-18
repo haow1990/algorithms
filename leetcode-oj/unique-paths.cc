@@ -5,7 +5,13 @@ using namespace std;
 class Solution {
 public:
     int uniquePaths(int m, int n) {
-        int array[100][100];
+        if (m < 1 || n < 1) {
+            return 0;
+        }
+        if (m == 1 || n == 1) {
+            return 1;
+        }
+        int array[m][n];
         for (int i = 0; i < m; ++i) {
             array[i][0] = 1;
         }
@@ -18,6 +24,7 @@ public:
             }
         }
         return array[m-1][n-1];
+    
     }
 };
 

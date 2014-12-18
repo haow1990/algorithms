@@ -2,45 +2,50 @@
 #include <vector>
 using namespace std;
 
-void traverseRegion(int i, int j, vector<vector<char>> &board)
-{
-    const int M = board.size();
-    const int N = board[0].size();
-    board[i][j] = '.';
-    if (i > 0 && board[i-1][j] == 'O') traverseRegion(i-1, j, board);
-    if (j > 0 && board[i][j-1] == 'O') traverseRegion(i, j-1, board);
-    if (i+1 < M && board[i+1][j] == 'O') traverseRegion(i+1, j, board);
-    if (j+1 < N && board[i][j+1] == 'O') traverseRegion(i, j+1, board);
-}
-
 class Solution {
 public:
     void solve(vector<vector<char>> &board) {
-        if (board.size() < 3) {
+        if (board.empty() || board[0].empty()) {
             return;
         }
-        if (board[0].size() < 3) {
-            return;
+        const int m = board.size();
+        const int n = board[0].size();
+        queue<pair<int, int> > q;
+        auto push_if = [&](int i, int j) {
+            if (i < 0 || i >= m || j < 0 || j >= n || board[i][j] != 'O') {
+                return;
+            }
+            board[i][j] = '.';
+            q.push(make_pair(i, j));
+        };
+        for (int i = 0; i < m; ++i) {
+            push_if(i, 0);
+            push_if(i, n - 1);
         }
-        const int M = board.size();
-        const int N = board[0].size();
-        for (size_t i = 0; i < M; ++i) {
-            if (board[i][0] == 'O') traverseRegion(i, 0, board);
-            if (board[i][N-1] == 'O') traverseRegion(i, N-1, board);
+        for (int j = 0; j < n; ++j) {
+            push_if(0, j);
+            push_if(m - 1, j);
         }
-        for (size_t j = 0; j < N; ++j) {
-            if (board[0][j] == 'O') traverseRegion(0, j, board);
-            if (board[M-1][j] == 'O') traverseRegion(M-1, j, board);
+        while (q.empty() == false) {
+            int i = q.front().first;
+            int j = q.front().second;
+            q.pop();
+            push_if(i - 1, j);
+            push_if(i + 1, j);
+            push_if(i, j - 1);
+            push_if(i, j + 1);
         }
+        
         char cmap[256];
         cmap['X'] = 'X';
         cmap['O'] = 'X';
         cmap['.'] = 'O';
-        for (size_t i = 0; i < M; ++i) {
-            for (size_t j = 0; j < N; ++j) {
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
                 board[i][j] = cmap[board[i][j]];
             }
         }
+    
     }
 };
 

@@ -5,36 +5,27 @@ using namespace std;
 
 class Solution {
 public:
-    vector<vector<int> > result;
-    vector<int> path;
-    
-    void sub(const vector<int> &s, size_t i)
-    {
-        if (i >= s.size()) {
+    void dfs(vector<vector<int> > &result, vector<int> &path, vector<int> &S, int is) {
+        if (is >= S.size()) {
             result.push_back(path);
-        } else {
-            sub(s, i+1);
-            path.push_back(s[i]);
-            sub(s, i+1);
-            path.pop_back();
+            return;
         }
+        // no add
+        dfs(result, path, S, is + 1);
+        // add 
+        path.push_back(S[is]);
+        dfs(result, path, S, is + 1);
+        path.pop_back();
     }
 
     vector<vector<int> > subsets(vector<int> &S) {
-        for (size_t i = S.size(); i > 0; --i) {
-            for (size_t j = 0; j + 1 < i; ++j) {
-                if (S[j] > S[j+1]) {
-                    int tmp = S[j];
-                    S[j] = S[j+1];
-                    S[j+1] = tmp;
-                }
-            }
-        }
-        result.clear();
-        path.clear();
-        sub(S, 0);
+        sort(S.begin(), S.end());
+        vector<vector<int> > result;
+        vector<int> path;
+        dfs(result, path, S, 0);
         return result;
     }
+
 };
 
 int main(int argc, char **argv)

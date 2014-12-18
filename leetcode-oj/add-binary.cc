@@ -6,34 +6,29 @@ using namespace std;
 class Solution {
 public:
     string addBinary(string a, string b) {
+        if (a.size() < b.size()) {
+            return addBinary(b, a);
+        }
+        reverse(a.begin(), a.end());
+        reverse(b.begin(), b.end());
         string result;
-        auto ia = a.rbegin();
-        auto ib = b.rbegin();
         int carry = 0;
-        while (ia != a.rend() && ib != b.rend()) {
-            int d = *ia - '0' + *ib - '0' + carry;
-            carry = d > 1 ? 1 : 0;
-            result.push_back('0' + (d&1));
-            ++ia;
-            ++ib;
+        for (int i = 0; i < b.size(); ++i) {
+            int res = a[i] - '0' + b[i] - '0' + carry;
+            result.push_back('0' + (res & 1));
+            carry = (res >> 1);
         }
-        auto ii = ia;
-        auto ie = a.rend();
-        if (ia == a.rend()) {
-            ii = ib;
-            ie = b.rend();
-        }
-        while (ii != ie) {
-            int d = *ii - '0' + carry;
-            carry = d > 1 ? 1 : 0;
-            result.push_back('0' + (d&1));
-            ++ii;
+        for (int i = b.size(); i < a.size(); ++i) {
+            int res = a[i] - '0' + carry;
+            result.push_back('0' + (res & 1));
+            carry = (res >> 1);
         }
         if (carry) {
             result.push_back('1');
         }
         reverse(result.begin(), result.end());
         return result;
+    
     }
 };
 

@@ -5,29 +5,30 @@ using namespace std;
 
 class Solution {
 public:
-    vector<vector<int> > result;
-    vector<int> path;
-
-    void com(int n, int i, int k)
-    {
-        if (k == 0) {
+    void dfs(vector<vector<int> > &result, vector<int> &path, int idx, int now, int n) {
+        if (idx >= path.size()) {
             result.push_back(path);
-        } else if (n - i + 1 >= k) {
-            com(n, i+1, k);
-            path.push_back(i);
-            com(n, i+1, k-1);
-            path.pop_back();
+            return;
+        } else if (now > n) {
+            return;
         }
+        // no add
+        dfs(result, path, idx, now + 1, n);
+        // add
+        path[idx] = now;
+        dfs(result, path, idx + 1, now + 1, n);
     }
 
     vector<vector<int> > combine(int n, int k) {
-        result.clear();
-        path.clear();
-        if (k <= 0 || n <= 0)
+        vector<vector<int> > result;
+        if (n < 1 || n < k) {
             return result;
-        com(n, 1, k);
+        }
+        vector<int> path(k);
+        dfs(result, path, 0, 1, n);
         return result;
     }
+
 };
 
 int main(int argc, char **argv)

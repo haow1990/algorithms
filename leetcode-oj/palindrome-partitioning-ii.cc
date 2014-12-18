@@ -9,25 +9,27 @@ public:
         if (s.size() < 2) {
             return 0;
         }
-        const int N = s.size();
-        vector<vector<bool> > pal(N, vector<bool>(N, false));
-        vector<int> result(N);
-        for (int i = N - 1; i >= 0; --i) {
-            result[i] = N - i - 1;
-            for (int j = i; j < N; ++j) {
-                if (s[i] == s[j]
-                     && (j - i < 2 || pal[i+1][j-1])) {
-                    pal[i][j] = true;
-                    if (j == N-1) {
-                        result[i] = 0;
-                    } else if (result[j+1] < result[i]) {
-                        result[i] = result[j+1] + 1;
-                    }
+        vector<vector<bool> > palindrome(s.size(), vector<bool>(s.size()));
+        vector<int> result(s.size());
+        for (int i = s.size() - 1; i >= 0; --i) {
+            int e = s.size() - 1;
+            if (s[i] == s[e] && (e - i <= 2 || palindrome[i+1][e-1])) {
+                palindrome[i][e] = true;
+            } else {
+                palindrome[i][e] = false;
+            }
+            result[i] = palindrome[i][e] ? 0 : s.size() - i;
+            for (int j = i; j + 1 < s.size(); ++j) {
+                if (s[i] == s[j] && (j - i <= 2 || palindrome[i+1][j-1])) {
+                    palindrome[i][j] = true;
+                    result[i] = min(result[i], 1 + result[j+1]);
+                } else {
+                    palindrome[i][j] = false;
                 }
             }
         }
-
         return result[0];
+    
     }
 };
 

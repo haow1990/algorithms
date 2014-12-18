@@ -4,66 +4,49 @@
 #include <set>
 #include <unordered_map>
 using namespace std;
-
-struct smeta {
-    size_t len;
-    long sum;
-    long sum2;
-    long product;
-    
-    smeta(size_t lval, long sval, long pval)
-        : len(lval), sum(sval), sum2(0), product(pval)
-    {}
-
-    smeta(const string &str)
-    {
-        len = str.size();
-        sum = 0;
-        sum2 = 0;
-        product = 1;
+struct strkey {
+    int count[26];
+    strkey() {
+        bzero(count, sizeof(count));
+    }
+    strkey(const string &str) {
+        bzero(count, sizeof(count));
         for (char c : str) {
-            sum += c - 'a' + 1;
-            sum2 += (c - 'a' + 1) * (c - 'a' + 1);
-            product *= c - 'a' + 1;
+            ++count[c-'a'];
         }
     }
 };
 
-bool operator==(const smeta &sm1, const smeta &sm2)
-{
-    return sm1.len == sm2.len
-        && sm1.sum == sm2.sum
-        && sm1.sum2 == sm2.sum2
-        && sm1.product == sm2.product;
+bool operator==(const strkey &k1, const strkey &k2) {
+    for (int i = 0; i < 26; ++i) {
+        if (k1.count[i] != k2.count[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
-struct smhash
-{
-    size_t operator()(const smeta &sm) const
-    {
-        return sm.len * sm.sum * sm.sum2 * sm.product;
+struct strkeyhash {
+    size_t operator()(const strkey &sk)const {
+        size_t re = 0;
+        for (int i = 0; i < 26; ++i) {
+            re += sk.count[i] * (i + 1);
+        }
+        return re;
     }
 };
 
 class Solution {
 public:
     vector<string> anagrams(vector<string> &strs) {
-        vector<string> result;
-        unordered_map<smeta, vector<const string*>, smhash> metas;
-        for (const string &str : strs) {
-            smeta meta(str);
-            auto iter = metas.find(meta);
-            if (iter == metas.end()) {
-                iter = metas.insert(make_pair(meta, vector<const string *>())).first;
-            }
-            iter->second.push_back(&str);
+        unordered_map<strkey, vector<string>, strkeyhash> smap;
+        for (string &s : strs) {
+            smap[strkey(s)].push_back(s);
         }
-        for (auto &kvp : metas) {
-            if (kvp.second.size() <= 1) {
-                continue;
-            }
-            for (auto strp : kvp.second) {
-                result.push_back(*strp);
+        vector<string> result;
+        for (auto &pr : smap) {
+            if (pr.second.size() > 1) {
+                result.insert(result.end(), pr.second.begin(), pr.second.end());
             }
         }
         return result;

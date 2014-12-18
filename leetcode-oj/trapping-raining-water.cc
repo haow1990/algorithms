@@ -5,38 +5,25 @@ using namespace std;
 class Solution {
 public:
     int trap(int A[], int n) {
-        if (n <= 0) {
+        if (n == 0) {
             return 0;
         }
-        int *forward = new int[n];
-        int *backward = new int[n];
-        forward[0] = A[0];
+        vector<int> leftmax(n);
+        leftmax[0] = A[0];
         for (int i = 1; i < n; ++i) {
-            if (A[i] < forward[i-1]) {
-                forward[i] = forward[i-1];
-            } else {
-                forward[i] = A[i];
-            }
+            leftmax[i] = max(leftmax[i-1], A[i]);
         }
-        backward[n-1] = A[n-1];
-        for (int i = n - 2; i >= 0; --i) {
-            if (A[i] < backward[i+1]) {
-                backward[i] = backward[i+1];
-            } else {
-                backward[i] = A[i];
-            }
+        vector<int> rightmax(n);
+        rightmax[n-1] = A[n-1];
+        for (int j = n - 2; j >= 0; --j) {
+            rightmax[j] = max(rightmax[j+1], A[j]);
         }
-        int result = 0;
+        int res = 0;
         for (int i = 0; i < n; ++i) {
-            if (forward[i] > backward[i]) {
-                result += backward[i] - A[i];
-            } else {
-                result += forward[i] - A[i];
-            }
+            res += min(leftmax[i], rightmax[i]) - A[i];
         }
-        delete[] forward;
-        delete[] backward;
-        return result;
+        return res;
+    
     }
 };
 

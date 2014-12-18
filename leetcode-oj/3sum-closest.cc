@@ -7,31 +7,36 @@ using namespace std;
 
 class Solution {
 public:
+    int abs(int val) {
+        return val < 0 ? -val : val;
+    }
+
     int threeSumClosest(vector<int> &num, int target) {
+        if (num.size() < 3) {
+            return 0;
+        }
         sort(num.begin(), num.end());
-        int result = INT_MAX;
-        int min = INT_MAX;
-        for (int i = 0; i < num.size() - 2; ++i) {
+        int result = num[0] + num[1] + num[2];
+        for (int i = 0; i < num.size(); ++i) {
             int j = i + 1;
             int k = num.size() - 1;
-            while (k > j) {
-                int current = num[i] + num[j] + num[k];
-                if (current == target) {
-                    return current;
+            while (j < k) {
+                int sum = num[i] + num[j] + num[k];
+                if (sum == target) {
+                    return target;
                 }
-                int me = (current-target) * (current-target);
-                if (min > me) {
-                    min = me;
-                    result = current;
+                if (abs(sum - target) < abs(result - target)) {
+                    result = sum;
                 }
-                if (current > target) {
-                    --k;
-                } else {
+                if (sum < target) {
                     ++j;
+                } else {
+                    --k;
                 }
             }
         }
         return result;
+    
     }
 };
 

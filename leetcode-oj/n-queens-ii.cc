@@ -5,44 +5,33 @@ using namespace std;
 
 class Solution {
 public:
-    int result;
-    void solve(vector<bool> &column,
-            vector<bool> &bleft, vector<bool> &bright,
-            int idx)
-    {
-        if (idx >= column.size()) {
-            ++result;
-            return;
-        }
-        for (int j = 0; j < column.size(); ++j) {
-            if (column[j]
-                    || bleft[idx-j+column.size()]
-                    || bright[j+idx]) {
-                continue;
-            }
-            column[j] = true;
-            bleft[idx-j+column.size()] = true;
-            bright[j+idx] = true;
-
-            solve(column, bleft, bright, idx + 1);
-
-            column[j] = false;
-            bleft[idx-j+column.size()] = false;
-            bright[j+idx] = false;
-        }
-    }
-
     int totalNQueens(int n) {
-        if (n == 0) {
-            return 0;
-        }
-        result = 0;
-        vector<bool> column(n, false);
-        vector<bool> bleft(n * 2, false);
-        vector<bool> bright(n * 2, false);
-        solve(column, bleft, bright, 0);
-        return result;
+        int res = 0;
+        vector<bool> vertical(n, false);
+        vector<bool> slash(n * 2, false);
+        vector<bool> backslash(n * 2, false);
+        function<void(int)> backtrack = [&](int i) -> void {
+            if (i >= n) {
+                ++res;
+                return;
+            }
+            for (int j = 0; j < n; ++j) {
+                if (vertical[j] || slash[i+j] || backslash[i-j+n-1]) {
+                    continue;
+                }
+                vertical[j] = true;
+                slash[i+j] = true;
+                backslash[i-j+n-1] = true;
+                backtrack(i+1);
+                vertical[j] = false;
+                slash[i+j] = false;
+                backslash[i-j+n-1] = false;
+            }
+        };
+        backtrack(0);
+        return res;
     }
+
 };
 
 int main(int argc, char **argv)

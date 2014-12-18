@@ -7,54 +7,43 @@ struct ListNode {
     ListNode(int x) : val(x), next(NULL) {}
 };
 
-void traverse(ListNode *head)
-{
-    while (head != NULL) {
-        cout << head->val << ' ';
-        head = head->next;
-    }
-    cout << endl;
-}
-
-ListNode *reverse(ListNode *head)
-{
-    ListNode *rhead = NULL;
-    while (head != NULL) {
-        ListNode *next = head->next;       
-        head->next = rhead;
-        rhead = head;
-        head = next;
-    }
-    return rhead;
-}
-
 class Solution {
 public:
+    ListNode *reverse(ListNode *head) {
+        ListNode *res = nullptr;
+        while (head != nullptr) {
+            auto next = head->next;
+            head->next = res;
+            res = head;
+            head = next;
+        }
+        return res;
+    }
+    
     void reorderList(ListNode *head) {
-        // no change if list contains 0/1/2 nodes
-        if (head == NULL || head->next == NULL || head->next->next == NULL) {
+        if (head == nullptr) {
             return;
         }
-        // find mid of the list
-        ListNode *fast = head, *slow = head;
-        while (fast->next != NULL && fast->next->next != NULL) {
+        
+        auto fast = head;
+        auto slow = head;
+        while (fast->next != nullptr && fast->next->next != nullptr) {
             fast = fast->next->next;
             slow = slow->next;
         }
-        ListNode *second = slow->next;
-        slow->next = NULL;
-        second = reverse(second);
-
-        // merge the 2 lists
-        while (second != NULL) {
-            ListNode *nextHead = head->next;
-            ListNode *nextSecond = second->next;
-            head->next = second;
-            second->next = nextHead;
-            head = nextHead;
-            second = nextSecond;
+        auto p = reverse(slow->next);
+        slow->next = nullptr;
+        auto tail = head;
+        while (p != nullptr) {
+            auto nextp = p->next;
+            auto nextt = tail->next;
+            p->next = nextt;
+            tail->next = p;
+            tail = nextt;
+            p = nextp;
         }
     }
+
 };
 
 int main()

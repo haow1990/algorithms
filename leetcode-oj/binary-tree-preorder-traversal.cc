@@ -12,26 +12,21 @@ struct TreeNode {
 
 class Solution {
 public:
-    vector<int> preorderTraversal(TreeNode *root)
-    {
+    void preorder(TreeNode *root, vector<int> &result) {
+        if (root == nullptr) {
+            return;
+        }
+        result.push_back(root->val);
+        preorder(root->left, result);
+        preorder(root->right, result);
+    }
+    
+    vector<int> preorderTraversal(TreeNode *root) {
         vector<int> result;
-        stack<TreeNode*> nodeStack;
-        if (root != NULL) {
-            nodeStack.push(root);
-        }
-        while (nodeStack.empty() == false) {
-            TreeNode *current = nodeStack.top();
-            result.push_back(current->val);
-            nodeStack.pop();
-            if (current->right != NULL) {
-                nodeStack.push(current->right);
-            }
-            if (current->left != NULL) {
-                nodeStack.push(current->left);
-            }
-        }
+        preorder(root, result);
         return result;
     }
+
 };
 
 int main()

@@ -5,40 +5,29 @@ using namespace std;
 
 class Solution {
 public:
-    vector<vector<int> > result;
-    vector<int> path;
-    map<int, int> nums;
-
-    void form(map<int, int>::iterator iter)
-    {
-        if (iter == nums.end()) {
+    void dfs(vector<vector<int> > &result, vector<int> &path, map<int, int>::iterator current, map<int, int>::iterator end) {
+        if (current == end) {
             result.push_back(path);
             return;
         }
-        size_t original = path.size();
-        for (int i = 0; i <= iter->second; ++i) {
-            auto next = iter++;
-            form(iter);
-            iter = next;
-            path.push_back(iter->first);
+        int originalSize = path.size();
+        auto next = current;
+        ++next;
+        for (int i = 0; i <= current->second; ++i) {
+            dfs(result, path, next, end);
+            path.push_back(current->first);
         }
-        path.resize(original);
+        path.resize(originalSize);
     }
 
     vector<vector<int> > subsetsWithDup(vector<int> &S) {
-        nums.clear();
-        for (auto iter = S.begin(); iter != S.end(); ++iter) {
-            auto mpiter = nums.find(*iter);
-            if (mpiter == nums.end()) {
-                nums[*iter] = 1;
-            } else {
-                mpiter->second += 1;
-            }
+        map<int, int> nums;
+        for (int n : S) {
+            ++nums[n];
         }
-        
-        result.clear();
-        path.clear();
-        form(nums.begin());
+        vector<vector<int> > result;
+        vector<int> path;
+        dfs(result, path, nums.begin(), nums.end());
         return result;
     }
 };

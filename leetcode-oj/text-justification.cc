@@ -7,49 +7,43 @@ using namespace std;
 class Solution {
 public:
     vector<string> fullJustify(vector<string> &words, int L) {
-        vector<string> result;
-        if (words.empty()) {
-            return result;
-        }
-        size_t i = 0;
+        vector<string> res;
+        int i = 0;
         while (i < words.size()) {
-            size_t len = words[i].size();
-            size_t j = i + 1;
-            while (j < words.size()
-                    && len + 1 + words[j].size() <= L) {
-                len += 1 + words[j].size();
+            // will pack words[i..j] to a new line
+            int j = i;
+            int totalsize = words[i].size();
+            while (j + 1 < words.size() && totalsize + 1 + words[j+1].size() <= L) {
                 ++j;
+                totalsize = totalsize + 1 + words[j].size();
             }
-
-            result.resize(result.size() + 1);
-            string &line = result.back();
-            line = words[i];
-
-            if (i + 1 == j) {
-                if (line.size() < L) {
-                    line.append(L - line.size(), ' ');
+            res.push_back(words[i]);
+            if (i == j) {
+                res.back().append(L - totalsize, ' ');
+            } else if (j + 1 == words.size()) {
+                for (int k = i + 1; k <= j; ++k) {
+                    res.back().append(1, ' ');
+                    res.back() += words[k];
                 }
+                res.back().append(L - totalsize, ' ');
             } else {
-                int pads = (L - len) / (j - i - 1);
-                int leftPads = L - len - pads * (j - i - 1);
-                if (j >= words.size()) {
-                    pads = 0;
-                    leftPads = 0;
-                }
-                for (int k = i+1; k < j; ++k) {
-                    if (leftPads > 0) {
-                        line.append(pads + 2, ' ');
-                        --leftPads;
+                int per = (L - totalsize) / (j - i);
+                int spacesleft = L - totalsize - per * (j - i);
+                for (int k = i + 1; k <= j; ++k) {
+                    if (spacesleft > 0) {
+                        res.back().append(per + 2, ' ');
+                        --spacesleft;
                     } else {
-                        line.append(pads + 1, ' ');
+                        res.back().append(per + 1, ' ');
                     }
-                    line += words[k];
+                    res.back() += words[k];
                 }
-                line.append(L - line.size(), ' ');
             }
-            i = j;
+            
+            i = j + 1;
         }
-        return result;
+        return res;
+    
     }
 };
 

@@ -5,53 +5,43 @@ using namespace std;
 
 class Solution {
 public:
-    bool sameChars(const char *start, const char *end, const char *cmp) {
-        int sum1 = 0, sum2 = 0;
-        int prod1 = 1, prod2 = 1;
-        while (start != end) {
-            sum1 += *start;
-            prod1 *= *start;
-            sum2 += *cmp;
-            prod2 *= *cmp;
-
-            ++start;
-            ++cmp;
+    bool equal(const string &s1, int i, int j, const string &s2, int k) {
+        while (i <= j) {
+            if (s1[i++] != s2[k++]) {
+                return false;
+            }
         }
-
-        return sum1 == sum2 && prod1 == prod2;
+        return true;
     }
-
+    
     bool isScramble(string s1, string s2) {
         if (s1.size() != s2.size()) {
             return false;
-        }
-        if (s1.empty()) {
+        } else if (s1.empty()) {
             return true;
         }
-        const size_t LEN = s1.size();
-        vector<vector<vector<bool> > > array(LEN, vector<vector<bool> >(LEN, vector<bool>(LEN, false)));
-        for (size_t i = 0; i < LEN; ++i) {
-            for (size_t k = 0; k < LEN; ++k) {
-                array[i][i][k] = (s1[i] == s2[k]);
-            }
-        }
-        for (size_t step = 1; step < LEN; ++step) {
-            for (size_t i = 0; i + step < LEN; ++i) {
-                size_t j = i + step;
-                for (size_t k = 0; k+j-i < LEN; ++k) {
-                    for (size_t x = i; x < j; ++x) {
-                        if (array[i][x][k] && array[x+1][j][k+x-i+1] ||
-                                array[i][x][k+j-x] && array[x+1][j][k]) {
-                            array[i][j][k] = true;
+        // isScramble(s1[i..j], s2[k..j-i+k]) => dp[i][j][k]
+        vector<vector<vector<bool> > > dp(s1.size(), vector<vector<bool> >(s1.size(), vector<bool>(s2.size())));
+        for (int len = 1; len <= s1.size(); ++len) {
+            for (int i = 0; i + len <= s1.size(); ++i) {
+                int j = i + len - 1;
+                for (int k = 0; k + len <= s2.size(); ++k) {
+                    if (equal(s1, i, j, s2, k)) {
+                        dp[i][j][k] = true;
+                        continue;
+                    }
+                    dp[i][j][k] = false;
+                    for (int left = 1; left < len; ++left) {
+                        if ((dp[i][i+left-1][k] && dp[i+left][j][k+left])
+                             || (dp[i][i+left-1][k+len-left] && dp[i+left][j][k])) {
+                            dp[i][j][k] = true;
                             break;
                         }
                     }
-
                 }
             }
         }
-
-        return array[0][LEN-1][0];
+        return dp[0][s1.size()-1][0];
     }
 };
 int main(int argc, char **argv)

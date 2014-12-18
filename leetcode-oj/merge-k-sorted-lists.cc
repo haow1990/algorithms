@@ -3,39 +3,30 @@
 #include <vector>
 using namespace std;
 
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
-
-struct cmp {
-    bool operator()(ListNode *p1, ListNode *p2) const {
-        return p1->val > p2->val;
-    }
-};
-
 class Solution {
 public:
     ListNode *mergeKLists(vector<ListNode *> &lists) {
-        priority_queue<ListNode*, vector<ListNode*>, cmp> q;
+        auto cmp = [](ListNode *n1, ListNode *n2) {
+            return n1->val > n2->val;
+        };
+        priority_queue<ListNode*, vector<ListNode*>, decltype(cmp)> q(cmp);
         for (ListNode *node : lists) {
             if (node != nullptr) {
                 q.push(node);
             }
         }
-        ListNode pivot(0);
-        ListNode *last = &pivot;
+        ListNode dummy(0), *tail = &dummy;
         while (q.empty() == false) {
-            last->next = q.top();
-            last = q.top();
+            tail->next = q.top();
+            tail = tail->next;
             q.pop();
-            if (last->next != nullptr) {
-                q.push(last->next);
+            if (tail->next != nullptr) {
+                q.push(tail->next);
             }
         }
-        last->next = nullptr;
-        return pivot.next;
+        tail->next = nullptr;
+        return dummy.next;
+    
     }
 };
 

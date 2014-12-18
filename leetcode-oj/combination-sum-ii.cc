@@ -6,42 +6,33 @@ using namespace std;
 
 class Solution {
 public:
-    void combine(map<int, int> &numbers, map<int, int>::iterator iter,
-            vector<vector<int> > &result, vector<int> &path, int sum) {
-        if (sum == 0) {
+    void dfs(vector<vector<int> > &result, vector<int> &path, map<int, int>::iterator current, map<int, int>::iterator end, int target)
+    {
+        if (target == 0) {
             result.push_back(path);
             return;
         }
-        if (iter == numbers.end()) {
+        if (current == end || current->first > target) {
             return;
         }
-        size_t originalSize = path.size();
-        int current = iter->first;
-        int count = iter->second;
-        auto next = ++iter;
-        for (int i = 0; i <= count && i * current <= sum; ++i) {
-            int newsum = sum - i * current;
-            if (newsum != 0 && newsum < current) {
-                break;
-            }
-            combine(numbers, next, result, path, newsum);
-            path.push_back(current);
+        auto next = current;
+        ++next;
+        int originalSize = path.size();
+        for (int i = 0; i <= current->second; ++i) {
+            dfs(result, path, next, end, target - current->first * i);
+            path.push_back(current->first);
         }
         path.resize(originalSize);
     }
+    
     vector<vector<int> > combinationSum2(vector<int> &num, int target) {
-        map<int, int> numbers;
+        map<int, int> nmap;
         for (int n : num) {
-            auto iter = numbers.find(n);
-            if (iter != numbers.end()) {
-                iter->second += 1;
-            } else {
-                numbers[n] = 1;
-            }
+            ++nmap[n];
         }
-        vector<vector<int> > result;
         vector<int> path;
-        combine(numbers, numbers.begin(), result, path, target);
+        vector<vector<int> > result;
+        dfs(result, path, nmap.begin(), nmap.end(), target);
         return result;
     }
 };

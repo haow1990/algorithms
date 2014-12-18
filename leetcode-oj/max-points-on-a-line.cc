@@ -1,108 +1,75 @@
-#include <cstdlib>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-struct line {
-    int a, b, c;
-    line(int aa = 0, int bb = 0, int cc = 0)
+/**
+ * Definition for a point.
+ * struct Point {
+ *     int x;
+ *     int y;
+ *     Point() : x(0), y(0) {}
+ *     Point(int a, int b) : x(a), y(b) {}
+ * };
+ */
+ 
+ struct line {
+     int a, b, c;
+     line(int aa, int bb, int cc)
         : a(aa), b(bb), c(cc)
-    {}
-
-    size_t hash() const
-    {
-        if (c != 0) {
-            return a * a / (c * c) + b * b / (c * c);
-        } else if (b != 0) {
-            return a * a / (b * b);
-        } else {
-            return 0;
-        }
-    }
-};
-
-bool operator==(const line &l1, const line &l2)
-{
-    return l1.a * l2.c == l2.a * l1.c &&
-           l1.b * l2.c == l2.b * l1.c &&
-           l1.a * l2.b == l2.a * l1.b;
-}
-
-struct linehash
-{
-    size_t operator()(const line &ll)const
-    {
-        return ll.hash();
-    }
-};
-
-struct Point
-{
-    int x;
-    int y;
-    Point(int a = 0, int b = 0)
-        : x(a), y(b)
-    {}
-};
-
-class Solution
-{
+     {}
+     line(Point p1, Point p2) {
+         a = p2.y - p1.y;
+         b = p1.x - p2.x;
+         c = -a * p1.x - b * p1.y;
+     }
+ };
+ 
+ struct linehash {
+     size_t operator()(const line &ll) const {
+         if (ll.c != 0) {
+             int c2 = ll.c * ll.c;
+             return ll.a * ll.a / c2 + ll.b * ll.b / c2;
+         } else if (ll.b != 0) {
+             return ll.a * ll.a / ll.b / ll.b;
+         } else {
+             return 0;
+         }
+     }
+ };
+ 
+ bool operator==(const line &l1, const line &l2) {
+     return l1.a * l2.b == l1.b * l2.a
+            && l1.a * l2.c == l1.c * l2.a
+            && l1.b * l2.c == l1.c * l2.b;
+ }
+ 
+ bool operator==(const Point &p1, const Point &p2) {
+     return p1.x == p2.x && p1.y == p2.y;
+ }
+ 
+class Solution {
 public:
     int maxPoints(vector<Point> &points) {
         if (points.size() < 3) {
             return points.size();
         }
-        int max = 0;
+        int res = 0;
         for (int i = 0; i < points.size(); ++i) {
-            const Point &p1 = points[i];
-            unordered_map<line, int, linehash> mm;
-            int identical = 0;
+            int same = 1;
+            unordered_map<line, int, linehash> lines;
             for (int j = i + 1; j < points.size(); ++j) {
-                const Point &p2 = points[j];
-                if (p2.x == p1.x && p2.y == p1.y) {
-                    identical += 1;
+                if (points[i] == points[j]) {
+                    ++same;
                     continue;
                 }
-                int a = p2.y - p1.y;
-                int b = p1.x - p2.x;
-                int c = 0 - a * p1.x - b * p1.y;
-                line ll(a, b, c);
-                unordered_map<line, int, linehash>::iterator iter = mm.find(ll);
-                if (iter != mm.end()) {
-                    iter->second += 1;
-                } else {
-                    mm[ll] = 1;
-                }
+                ++lines[line(points[i], points[j])];
             }
-
-            if (max < identical + 1) {
-                max = identical + 1;
+            int cur = 0;
+            for (auto &pr : lines) {
+                cur = max(cur, pr.second);
             }
-            for (unordered_map<line, int, linehash>::iterator iter = mm.begin();
-                    iter != mm.end(); ++iter) {
-                if (max < iter->second + identical + 1) {
-                    max = iter->second + identical + 1;
-                }
-            }
+            res = max(res, cur + same);
         }
-
-        return max;
+        return res;
     }
 };
 
-int main(int argc, char **argv)
-{
-    vector<Point> points;
-    points.push_back(Point(0, 0));
-    points.push_back(Point(0, 0));
-    points.push_back(Point(0, 0));
-    points.push_back(Point(0, 1));
-    points.push_back(Point(1, 1));
 
-    Solution s;
-    cout << "max is: " << s.maxPoints(points) << endl;
-    return 0;
-}
+
 

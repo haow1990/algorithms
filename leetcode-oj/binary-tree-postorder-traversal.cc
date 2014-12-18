@@ -13,33 +13,18 @@ struct TreeNode {
 
 class Solution {
 public:
-    vector<int> postorderTraversal(TreeNode *root)
-    {
+    void post(TreeNode *root, vector<int> &result) {
+        if (root == nullptr) {
+            return;
+        }
+        post(root->left, result);
+        post(root->right, result);
+        result.push_back(root->val);
+    }
+    
+    vector<int> postorderTraversal(TreeNode *root) {
         vector<int> result;
-        stack<TreeNode*> nodeStack;
-        set<TreeNode*> unvisitedSet;
-        if (root != NULL) {
-            nodeStack.push(root);
-            unvisitedSet.insert(root);
-        }
-        while (nodeStack.empty() == false) {
-            TreeNode *current = nodeStack.top();
-            set<TreeNode*>::iterator iter = unvisitedSet.find(current);
-            if (iter == unvisitedSet.end()) {
-                result.push_back(current->val);
-                nodeStack.pop();
-            } else {
-                unvisitedSet.erase(iter);
-                if (current->right != NULL) {
-                    nodeStack.push(current->right);
-                    unvisitedSet.insert(current->right);
-                }
-                if (current->left != NULL) {
-                    nodeStack.push(current->left);
-                    unvisitedSet.insert(current->left);
-                }
-            }
-        }
+        post(root, result);
         return result;
     }
 };

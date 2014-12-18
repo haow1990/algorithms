@@ -2,46 +2,31 @@
 #include <queue>
 using namespace std;
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-struct task {
-    int val;
-    TreeNode *node;
-    task(TreeNode *n, int v = 0)
-        : node(n), val(v)
-    {}
-};
-
 class Solution {
 public:
+    void dfs(TreeNode *root, int current, int &result) {
+        current = current * 10 + root->val;
+        if (root->left == nullptr && root->right == nullptr) {
+            result += current;
+            return;
+        }
+        if (root->left != nullptr) {
+            dfs(root->left, current, result);
+        }
+        if (root->right != nullptr) {
+            dfs(root->right, current, result);
+        }
+    }
+    
     int sumNumbers(TreeNode *root) {
-        if (root == NULL) {
+        if (root == nullptr) {
             return 0;
         }
-        queue<task> q;
-        q.push(task(root, 0));
-        int sum = 0;
-        while (q.empty() == false) {
-            int current = q.front().val * 10 + q.front().node->val;
-            if (q.front().node->left != NULL) {
-                q.push(task(q.front().node->left, current));
-            }
-            if (q.front().node->right != NULL) {
-                q.push(task(q.front().node->right, current));
-            }
-            if (q.front().node->left == NULL
-                    && q.front().node->right == NULL) {
-                sum += current;
-            }
-            q.pop();
-        }
-        return sum;
+        int result = 0;
+        dfs(root, 0, result);
+        return result;
     }
+
 };
 
 

@@ -8,41 +8,34 @@ public:
     // Manacher’s Algorithm
     // http://blog.csdn.net/hopeztm/article/details/7932245
     string longestPalindrome(string s) {
-        string t;
-        t.push_back(0);
-        for (char c : s) {
-            t.push_back(c);
-            t.push_back(0);
+        string tmp(s.size() * 2 + 1, 0);
+        for (int i = 0; i < s.size(); ++i) {
+            tmp[i * 2] = 0;
+            tmp[i * 2 + 1] = s[i];
         }
-        const size_t L = t.size();
-        vector<int> d(L, -1);
-        for (int i = 0; i < L; ++i) {
-            if (d[i] >= 0) {
-                continue;
+        tmp.back() = 0;
+        string result;
+        vector<int> radius(tmp.size());
+        int i = 0;
+        while (i < tmp.size()) {
+            int r = 1;
+            while (i - r >= 0 && i + r < tmp.size() && tmp[i-r] == tmp[i+r]) {
+                ++r;
             }
-            // find d[i]
-            int dd = 0;
-            while (i-dd-1>=0 && i+dd+1<L &&
-                    t[i-dd-1]==t[i+dd+1]) {
-                ++dd;
+            radius[i] = r - 1;
+            if (r - 1 > result.size()) {
+                result = s.substr((i-r+1)/2, r-1);
             }
-            d[i] = dd;
-            for (int j = 1; j < dd; ++j) {
-                if (i - j - d[i-j] > i - dd) {
-                    d[i+j] = d[i-j];
-                }
+            
+            int j = 1;
+            while (j < r && i - j - radius[i-j] > i - r + 1) {
+                radius[i+j] = radius[i-j];
+                ++j;
             }
+            i += j;
         }
-        int max = 0;
-        int maxi = 0;
-        for (int i = 0; i < d.size(); ++i) {
-            if (max < d[i]) {
-                max = d[i];
-                maxi = i;
-            }
-        }
-        int start = (maxi - max) / 2;
-        return s.substr(start, max);
+        return result;
+    
     }
 };
 

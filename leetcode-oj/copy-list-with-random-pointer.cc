@@ -10,42 +10,28 @@ struct RandomListNode {
 
 class Solution {
 public:
-    RandomListNode *copyRandomList(RandomListNode *head) {
-        typedef map<RandomListNode*, RandomListNode*> nmap_t;
-        nmap_t nmap;
-        nmap[NULL] = NULL;
-        for (RandomListNode *p = head; p != NULL; p = p->next) {
-            nmap_t::iterator iter = nmap.find(p);
-            RandomListNode *pnew;
-            if (iter != nmap.end()) {
-                pnew = iter->second;
-            } else {
-                pnew = new RandomListNode(p->label);
-                nmap[p] = pnew;
-            }
-            // copy random node
-            if (p->random != NULL) {
-                if (nmap.count(p->random) > 0) {
-                    pnew->random = nmap[p->random];
-                } else {
-                    RandomListNode *pnewrandom = new RandomListNode(p->random->label);
-                    nmap[p->random] = pnewrandom;
-                    pnew->random = pnewrandom;
-                }
-            }
-            // create next node
-            if (p->next != NULL) {
-                if (nmap.count(p->next) == 0) {
-                    RandomListNode *pnewnext = new RandomListNode(p->next->label);
-                    nmap[p->next] = pnewnext;
-                    pnew->next = pnewnext;
-                } else {
-                    pnew->next = nmap[p->next];
-                }
-            }
+    RandomListNode *getOrCreate(RandomListNode *original, unordered_map<RandomListNode*, RandomListNode*> &nmap) {
+        if (original == nullptr) {
+            return nullptr;
         }
-        return nmap[head];
+        auto iter = nmap.insert(make_pair(original, nullptr)).first;
+        if (iter->second == nullptr) {
+            iter->second = new RandomListNode(original->label);
+        }
+        return iter->second;
     }
+    
+    RandomListNode *copyRandomList(RandomListNode *head) {
+        RandomListNode dummy(0), *tail = &dummy;
+        unordered_map<RandomListNode*, RandomListNode*> nmap;
+        while (head != nullptr) {
+            tail = tail->next = getOrCreate(head, nmap);
+            tail->random = getOrCreate(head->random, nmap);
+            head = head->next;
+        }
+        return dummy.next;
+    }
+
 };
 
 int main()

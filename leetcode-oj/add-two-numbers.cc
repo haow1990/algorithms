@@ -11,35 +11,29 @@ struct ListNode {
 class Solution {
 public:
     ListNode *addTwoNumbers(ListNode *l1, ListNode *l2) {
-        ListNode pivot(0);
-        ListNode *tail = &pivot;
+        ListNode dummy(0), *tail = &dummy;
         int carry = 0;
         while (l1 != nullptr && l2 != nullptr) {
-            int val = (l1->val + l2->val + carry) % 10;
-            carry = (l1->val + l2->val + carry) / 10;
-            tail->next = new ListNode(val);
+            int x = l1->val + l2->val + carry;
+            tail->next = new ListNode(x % 10);
             tail = tail->next;
-
+            carry = x / 10;
             l1 = l1->next;
             l2 = l2->next;
         }
-        ListNode *remainings = l1;
-        if (remainings == nullptr) {
-            remainings = l2;
-        }
-        while (remainings != nullptr) {
-            int val = (remainings->val + carry) % 10;
-            carry = (remainings->val + carry) / 10;
-            tail->next = new ListNode(val);
+        auto remaining = (l1 == nullptr) ? l2 : l1;
+        while (remaining != nullptr) {
+            int x = remaining->val + carry;
+            tail->next = new ListNode(x % 10);
             tail = tail->next;
-
-            remainings = remainings->next;
+            carry = x / 10;
+            remaining = remaining->next;
         }
-
         if (carry != 0) {
             tail->next = new ListNode(carry);
         }
-        return pivot.next;
+        return dummy.next;
+    
     }
 };
 

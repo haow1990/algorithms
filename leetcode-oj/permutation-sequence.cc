@@ -7,28 +7,33 @@ int FACTORIALS[] = {0, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
 
 class Solution {
 public:
-    vector<int> numbers;
-    string current;
-    void doPerm(int n, int k)
-    {
-        if (n == 1) {
-            current.push_back('0' + numbers[0]);
+    void dfs(string &result, vector<int> &remaining, int facts[10], int idx, int k) {
+        if (remaining.size() == 1) {
+            result.back() = remaining.front();
             return;
         }
-        int idx = k / FACTORIALS[n-1];
-        current.push_back('0' + numbers[idx]);
-        numbers.erase(numbers.begin() + idx);
-        doPerm(n - 1, k % FACTORIALS[n-1]);
+        int i = k / facts[remaining.size() - 1];
+        result[idx] = remaining[i];
+        remaining.erase(remaining.begin() + i);
+        dfs(result, remaining, facts, idx + 1, k % facts[remaining.size()]);
     }
-
+    
     string getPermutation(int n, int k) {
-        numbers.resize(n);
-        for (int i = 0; i < n; ++i) {
-            numbers[i] = i + 1;
+        int facts[10] = {0, 1};
+        for (int i = 2; i < 10; ++i) {
+            facts[i] = facts[i-1] * i;
         }
-        current.clear();
-        doPerm(n, k-1);
-        return current;
+        if (n < 1 || k > facts[n] || k < 1) {
+            return string();
+        }
+        
+        string result(n, 0);
+        vector<int> remaining(n);
+        for (int i = 0; i < n; ++i) {
+            remaining[i] = i + '1';
+        }
+        dfs(result, remaining, facts, 0, k-1);
+        return result;
     }
 };
 

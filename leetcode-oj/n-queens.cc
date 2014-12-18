@@ -5,46 +5,36 @@ using namespace std;
 
 class Solution {
 public:
-    void solve(vector<vector<string> > &result, vector<bool> &column,
-            vector<bool> &bleft, vector<bool> &bright,
-            vector<string> &current, int idx)
-    {
-        if (idx >= column.size()) {
-            result.push_back(current);
-            return;
-        }
-        for (int j = 0; j < column.size(); ++j) {
-            if (column[j]
-                    || bleft[idx-j+column.size()]
-                    || bright[j+idx]) {
-                continue;
-            }
-            column[j] = true;
-            bleft[idx-j+column.size()] = true;
-            bright[j+idx] = true;
-            current[idx][j] = 'Q';
-
-            solve(result, column, bleft, bright, current, idx + 1);
-
-            column[j] = false;
-            bleft[idx-j+column.size()] = false;
-            bright[j+idx] = false;
-            current[idx][j] = '.';
-        }
-    }
-
     vector<vector<string> > solveNQueens(int n) {
-        vector<vector<string> > result;
-        if (n == 0) {
-            return result;
-        }
-        vector<bool> column(n, false);
-        vector<bool> bleft(n * 2, false);
-        vector<bool> bright(n * 2, false);
-        vector<string> current(n, string(n, '.'));
-        solve(result, column, bleft, bright, current, 0);
-        return result;
+        vector<vector<string> > res;
+        vector<string> path(n, string(n, '.'));
+        vector<bool> vertical(n, false);
+        vector<bool> slash(n * 2, false);
+        vector<bool> backslash(n * 2, false);
+        function<void(int)> backtrack = [&](int idx)->void{
+            if (idx >= n) {
+                res.push_back(path);
+                return;
+            }
+            for (int j = 0; j < n; ++j) {
+                if (vertical[j] || slash[idx+j] || backslash[idx-j+n-1]) {
+                    continue;
+                }
+                vertical[j] = true;
+                slash[idx+j] = true;
+                backslash[idx-j+n-1] = true;
+                path[idx][j] = 'Q';
+                backtrack(idx + 1);
+                path[idx][j] = '.';
+                vertical[j] = false;
+                slash[idx+j] = false;
+                backslash[idx-j+n-1] = false;
+            }
+        };
+        backtrack(0);
+        return res;
     }
+
 };
 
 int main(int argc, char **argv)

@@ -7,30 +7,24 @@ using namespace std;
 class Solution {
 public:
     int longestValidParentheses(string s) {
-        int max = 0;
-        stack<int> left;
-        int last = -1;
+        stack<int> stk;
+        int start = -1;
+        int res = 0;
         for (int i = 0; i < s.size(); ++i) {
             if (s[i] == '(') {
-                left.push(i);
+                stk.push(i);
             } else {
-                if (left.empty()) {
-                    last = i;
+                if (stk.empty()) {
+                    start = i;
                 } else {
-                    left.pop();
-                    int start;
-                    if (left.empty() == false) {
-                        start = left.top();
-                    } else {
-                        start = last;
-                    }
-                    if (i - start > max) {
-                        max = i - start;
-                    }
+                    stk.pop();
+                    int len = stk.empty() ? i - start : i - stk.top();
+                    res = max(res, len);
                 }
             }
         }
-        return max;
+        return res;
+    
     }
 };
 

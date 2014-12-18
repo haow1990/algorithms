@@ -6,38 +6,37 @@ using namespace std;
 class Solution {
 public:
      vector<vector<int> > generateMatrix(int n) {
+        if (n < 0) {
+            n = -n;
+        }
         vector<vector<int> > result(n, vector<int>(n));
-
-        int layers = (n + 1) / 2;
-        int x = 1;
-        for (int t = 0; t < layers; ++t) {
-            int mini = t;
-            int minj = t;
-            int maxi = n - 1 -t;
-            int maxj = n - 1 -t;
-            for (int j = minj; j <= maxj; ++j) {
-                result[mini][j] = x++;
+        int l = 0, r = n - 1;
+        int t = 0, b = n - 1;
+        int k = 0;
+        while (l <= r) {
+            for (int j = l; j <= r; ++j) {
+                result[t][j] = ++k;
             }
-
-            for (int i = mini + 1; i <= maxi; ++i) {
-                result[i][maxj] = x++;
+            for (int i = t + 1; i <= b; ++i) {
+                result[i][r] = ++k;
             }
-            if (mini == maxi) {
-                continue;
+            if (t != b) {
+                for (int j = r - 1; j >= l; --j) {
+                    result[b][j] = ++k;
+                }
             }
-
-            for (int j = maxj - 1; j >= minj; --j) {
-                result[maxi][j] = x++;
+            if (l != r) {
+                for (int i = b - 1; i > t; --i) {
+                    result[i][l] = ++k;
+                }
             }
-
-            if (minj == maxj) {
-                continue;
-            }
-            for (int i = maxi - 1; i > mini; --i) {
-                result[i][minj] = x++;
-            }
+            ++l;
+            --r;
+            ++t;
+            --b;
         }
         return result;
+    
     }
 };
 

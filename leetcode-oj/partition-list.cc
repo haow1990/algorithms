@@ -11,27 +11,22 @@ struct ListNode {
 class Solution {
 public:
     ListNode *partition(ListNode *head, int x) {
-        ListNode pivot(0);
-        ListNode *firstHalfTail = &pivot;
-        ListNode secondHalfHead(0);
-        ListNode *secondHalfTail = &secondHalfHead;
-
+        ListNode dummy1(0), dummy2(0);
+        auto tail1 = &dummy1;
+        auto tail2 = &dummy2;
         while (head != nullptr) {
             if (head->val < x) {
-                firstHalfTail->next = head;
-                head = head->next;
-                firstHalfTail = firstHalfTail->next;
-                firstHalfTail->next = nullptr;
+                tail1->next = head;
+                tail1 = head;
             } else {
-                secondHalfTail->next = head;
-                head = head->next;
-                secondHalfTail = secondHalfTail->next;
-                secondHalfTail->next = nullptr;
+                tail2->next = head;
+                tail2 = head;
             }
+            head = head->next;
         }
-
-        firstHalfTail->next = secondHalfHead.next;
-        return pivot.next;
+        tail1->next = dummy2.next;
+        tail2->next = nullptr;
+        return dummy1.next;
     }
 };
 

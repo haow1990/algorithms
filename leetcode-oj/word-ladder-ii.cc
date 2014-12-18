@@ -8,71 +8,72 @@
 #include <algorithm>
 using namespace std;
 
-void generate(unordered_map<string, pair<int, vector<string>>> &preMap, vector<string> &path, const string &word, vector<vector<string>> &result)
-{
-    path.push_back(word);
-    const vector<string> &pres = preMap[word].second;
-    if (pres.size() == 0) {
-        result.resize(result.size() + 1);
-        result.rbegin()->insert(result.rbegin()->end(), path.rbegin(), path.rend());
-    } else {
-        for (size_t i = 0; i < pres.size(); ++i) {
-            generate(preMap, path, pres[i], result);
-        }
-    }
-    path.pop_back();
-}
-
-void addPre(unordered_map<string, pair<int, vector<string>>> &premap, const string &key, const string &pre, int len)
-{
-    auto iter = premap.find(key);
-    if (iter == premap.end()) {
-        premap.insert(make_pair(key, make_pair(len, vector<string>()))).first->second.second.push_back(pre);
-    } else if (iter->second.first == len) {
-        iter->second.second.push_back(pre);
-    }
-}
-
 class Solution {
 public:
+    void backtrack(vector<vector<string> > &result, vector<string> &path, string &current, string &start,
+                   unordered_map<string, pair<int, vector<string> > > &precursors) {
+        if (current == start) {
+            result.push_back(path);
+            result.back().push_back(start);
+            reverse(result.back().begin(), result.back().end());
+            return;
+        }
+        path.push_back(current);
+        for (string &pre : precursors[current].second) {
+            backtrack(result, path, pre, start, precursors);
+        }
+        path.pop_back();
+    }
+    
     vector<vector<string>> findLadders(string start, string end, unordered_set<string> &dict) {
-        queue<pair<string, int>> q;
+        if (start == end) {
+            return vector<vector<string> >{{start}};
+        }
+        unordered_map<string, pair<int, vector<string> > > precursors;
+        queue<pair<int, string> > q;
+        q.push(make_pair(0, start));
         unordered_set<string> visited;
-        unordered_map<string, pair<int, vector<string>>> premap;
-        q.push(make_pair(start, 1));
-        premap.insert(make_pair(start, make_pair(1, vector<string>())));
+        visited.insert(start);
+        int shortestPath = -1;
         while (q.empty() == false) {
-            if (q.front().first == end) {
+            int current = q.front().first;
+            string str = q.front().second;
+            q.pop();
+            if (shortestPath != -1 && current >= shortestPath) {
                 break;
             }
-            string current = q.front().first;
-            int len = q.front().second;
-            for (size_t i = 0; i < current.size(); ++i) {
-                char original = current[i];
+            string tmp = str;
+            for (int i = 0; i < tmp.size(); ++i) {
+                char original = str[i];
                 for (char c = 'a'; c <= 'z'; ++c) {
-                    if (original == c)  continue;
-                    current[i] = c;
-                    if (dict.count(current) > 0 || current == end) {
-                        addPre(premap, current, q.front().first, len + 1);
-                        if (visited.count(current) == 0) {
-                            q.push(make_pair(current, len + 1));
-                            visited.insert(current);
-                        }
+                    if (c == original) {
+                        continue;
+                    }
+                    tmp[i] = c;
+                    if (tmp != end && dict.count(tmp) == 0) {
+                        continue;
+                    }
+                    auto preiter = precursors.find(tmp);
+                    if (preiter == precursors.end()) {
+                        preiter = precursors.insert(make_pair(tmp, make_pair(current + 1, vector<string>()))).first;
+                    } else if (preiter->second.first != current + 1) {
+                        continue;
+                    }
+                    preiter->second.second.push_back(str);
+                    if (visited.count(tmp) == 0) {
+                        visited.insert(tmp);
+                        q.push(make_pair(current + 1, tmp));
                     }
                 }
-                current[i] = original;
+                tmp[i] = original;
             }
-
-            q.pop();
         }
-
-        vector<vector<string>> result;
-        if (start == end || premap.count(end) > 0) {
-            vector<string> path;
-            generate(premap, path, end, result);
-        }
+        vector<vector<string> > result;
+        vector<string> path;
+        backtrack(result, path, end, start, precursors);
         return result;
     }
+
 };
 
 int main(int argc, char **argv)

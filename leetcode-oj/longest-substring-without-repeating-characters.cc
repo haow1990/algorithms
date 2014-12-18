@@ -6,25 +6,22 @@ using namespace std;
 class Solution {
 public:
     int lengthOfLongestSubstring(string s) {
-        int max = 0;
-        unordered_map<char, int> cidx;
-        int left = 0;
-        for (int i = 0; i < s.size(); ++i) {
-            auto iter = cidx.find(s[i]);
-            if (iter == cidx.end()) {
-                cidx[s[i]] = i;
-            } else {
-                for (int j = left; j < iter->second; ++j) {
-                    cidx.erase(s[j]);
+        int result = 0;
+        bool chars[256] = {};
+        int s = 0;
+        for (int e = 0; e < str.size(); ++e) {
+            if (chars[str[e]]) {
+                while (str[s] != str[e]) {
+                    chars[str[s]] = false;
+                    ++s;
                 }
-                left = iter->second + 1;
-                iter->second = i;
+                ++s;
             }
-            if (max < cidx.size()) {
-                max = cidx.size();
-            }
+            result = max(result, e - s + 1);
+            chars[str[e]] = true;
         }
-        return max;
+        return result;
+    
     }
 };
 

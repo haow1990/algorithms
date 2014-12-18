@@ -3,58 +3,27 @@
 #include <queue>
 using namespace std;
 
-struct tripple {
-    int sum;
-    int i;
-    int j;
-    tripple(int ss, int ii, int jj)
-        : sum(ss), i(ii), j(jj)
-    {}
-};
-
-struct tripple_cmp {
-    bool operator()(const tripple &t1, const tripple &t2)
-    {
-        if (t1.sum < t2.sum) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-};
-
 class Solution {
 public:
     int minPathSum(vector<vector<int> > &grid) {
         if (grid.empty() || grid[0].empty()) {
             return 0;
         }
-        size_t H = grid.size();
-        size_t W = grid[0].size();
-        vector<vector<int> > path(H, vector<int>(W, -1));
-        priority_queue<tripple, vector<tripple>, tripple_cmp> q;
-        q.push(tripple(grid[0][0], 0, 0));
-        while (q.empty() == false) {
-            tripple tp = q.top();
-            q.pop();
-            if (tp.i == H - 1 && tp.j == W - 1) {
-                return tp.sum;
-            }
-            if (path[tp.i][tp.j] < 0) {
-                path[tp.i][tp.j] = tp.sum;
-                // right
-                if (tp.i + 1 < H
-                        && path[tp.i+1][tp.j] == -1) {
-                    q.push(tripple(tp.sum + grid[tp.i+1][tp.j], tp.i+1, tp.j));
-                }
-                // bottom
-                if (tp.j + 1 < W
-                        && path[tp.i][tp.j+1] == -1) {
-                    q.push(tripple(tp.sum + grid[tp.i][tp.j+1], tp.i, tp.j+1));
-                }
+        const int m = grid.size();
+        const int n = grid[0].size();
+        for (int i = 1; i < m; ++i) {
+            grid[i][0] += grid[i-1][0];
+        }
+        for (int j = 1; j < n; ++j) {
+            grid[0][j] += grid[0][j-1];
+        }
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                grid[i][j] += min(grid[i-1][j], grid[i][j-1]);
             }
         }
-        return 0;
+        return grid[m-1][n-1];
+    
     }
 };
 

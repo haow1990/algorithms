@@ -6,73 +6,48 @@
 #include <algorithm>
 using namespace std;
 
-struct xy {
-    int x;
-    int y;
-
-    xy(int xx, int yy)
-        : x(xx), y(yy)
-    {}
+struct myhash {
+    size_t operator()(const tuple<int, int, int, int> &tpl) const {
+        return get<0>(tpl) * get<0>(tpl)
+               + get<1>(tpl) * get<1>(tpl)
+               + get<2>(tpl) * get<2>(tpl)
+               + get<3>(tpl) * get<3>(tpl);
+    }
 };
 
 class Solution {
 public:
     vector<vector<int> > fourSum(vector<int> &num, int target) {
-        unordered_map<int, vector<xy> > twosum;
+        unordered_map<int, vector<pair<int, int> > > twosum;
         for (int i = 0; i < num.size(); ++i) {
             for (int j = i + 1; j < num.size(); ++j) {
-                int sum = num[i] + num[j];
-                auto iter = twosum.find(sum);
-                if (iter == twosum.end()) {
-                    iter = twosum.insert(make_pair(sum, vector<xy>())).first;
-                }
-                iter->second.push_back(xy(i, j));
+                twosum[num[i] + num[j]].push_back(make_pair(i, j));
             }
         }
         vector<vector<int> > result;
-        unordered_set<int> visited1;
-        unordered_set<int> visited2;
-        unordered_set<int> visited3;
-        unordered_set<int> visited4;
+        unordered_set<tuple<int, int, int, int>, myhash> rset;
         vector<int> vv(4);
-        while (twosum.empty() == false) {
-            auto iter = twosum.begin();
-            int a = iter->first;
-            int b = target - a;
-            auto that = twosum.find(b);
-            if (that != twosum.end()) {
-                for (auto xy1 : iter->second) {
-                    for (auto xy2 : that->second) {
-                        if (xy1.x == xy2.x || xy1.x == xy2.y
-                                || xy1.y == xy2.x || xy1.y == xy2.y) {
-                            continue;
-                        }
-                        vv[0] = num[xy1.x];
-                        vv[1] = num[xy1.y];
-                        vv[2] = num[xy2.x];
-                        vv[3] = num[xy2.y];
-                        sort(vv.begin(), vv.end());
-                        int v1 = vv[0] + vv[1] + vv[2] + vv[3];
-                        int v2 = vv[0] * vv[0] + vv[1] * vv[1] + vv[2] * vv[2] + vv[3] * vv[3];
-                        int v3 = vv[0] * vv[0] * vv[0] + vv[1] * vv[1] * vv[1]
-                            + vv[2] * vv[2] * vv[2] + vv[3] * vv[3] * vv[3];
-                        int v4 = vv[0] * vv[0] * vv[0] * vv[0] + vv[1] * vv[1] * vv[1] * vv[1]
-                            + vv[2] * vv[2] * vv[2] * vv[2] + vv[3] * vv[3] * vv[3] * vv[3];
-                        if (visited1.count(v1) > 0 && visited2.count(v2) > 0
-                                && visited3.count(v3) > 0 && visited4.count(v4) > 0) {
-                            continue;
-                        }
+        for (auto &kv1 : twosum) {
+            auto kv2 = twosum.find(target - kv1.first);
+            if (kv2 == twosum.end()) {
+                continue;
+            }
+            for (auto &pr1 : kv1.second) {
+                for (auto &pr2 : kv2->second) {
+                    if (pr1.first == pr2.first || pr1.first == pr2.second
+                        || pr1.second == pr2.first || pr1.second == pr2.second) {
+                        continue;
+                    }
+                    vv[0] = num[pr1.first];
+                    vv[1] = num[pr1.second];
+                    vv[2] = num[pr2.first];
+                    vv[3] = num[pr2.second];
+                    sort(vv.begin(), vv.end());
+                    if (rset.insert(make_tuple(vv[0], vv[1], vv[2], vv[3])).second) {
                         result.push_back(vv);
-                        visited1.insert(v1);
-                        visited2.insert(v2);
-                        visited3.insert(v3);
-                        visited4.insert(v4);
                     }
                 }
             }
-
-            twosum.erase(a);
-            twosum.erase(b);
         }
         return result;
     }

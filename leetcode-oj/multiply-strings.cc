@@ -5,37 +5,35 @@ using namespace std;
 
 class Solution {
 public:
+    void addNum(unordered_map<int, int> &result, int idx, int val) {
+        while (val != 0) {
+            val += result[idx];
+            result[idx] = val % 10;
+            val /= 10;
+            ++idx;
+        }
+    }
     string multiply(string num1, string num2) {
-        string result("0");
-        if (num1 == result || num2 == result) {
-            return result;
-        }
-        for (char &c : num1) {
-            c -= '0';
-        }
-        for (char &c : num2) {
-            c -= '0';
-        }
-        result[0] = 0;
-        for (int i = num1.size() - 1, ir = 0; i >= 0; --i, ++ir) {
-            int carry = 0;
-            for (int j = num2.size() - 1, jr = ir; j >= 0; --j, ++jr) {
-                if (jr >= result.size()) {
-                    result.resize(jr + 1, 0);
-                }
-                int carry2 = (result[jr] + num1[i] * num2[j] + carry) / 10;
-                result[jr] = (result[jr] + num1[i] * num2[j] + carry) % 10;
-                carry = carry2;
-            }
-            if (carry != 0) {
-                result.push_back(carry);
+        reverse(num1.begin(), num1.end());
+        reverse(num2.begin(), num2.end());
+        unordered_map<int, int> result;
+        for (int i = 0; i < num1.size(); ++i) {
+            for (int j = 0; j < num2.size(); ++j) {
+                int val = (num1[i] - '0') * (num2[j] - '0');
+                addNum(result, i + j, val);
             }
         }
-        for (char &c : result) {
-            c += '0';
+        int digits = 0;
+        for (auto &p : result) {
+            if (p.second != 0 && p.first > digits) {
+                digits = p.first;
+            }
         }
-        reverse(result.begin(), result.end());
-        return result;
+        string str(digits + 1, 0);
+        for (int i = 0; i <= digits; ++i) {
+            str[digits-i] = result[i] + '0';
+        }
+        return str;
     }
 };
 

@@ -6,41 +6,29 @@ using namespace std;
 
 class Solution {
 public:
-    void doperm(const vector<int> &num, vector<vector<int> > &result, vector<int> &path, int idx, map<int, int> &visited)
-    {
-        if (idx >= num.size()) {
+    void backtrack(vector<vector<int> > &result, vector<int> &path, int pi, unordered_map<int, int> &nmap) {
+        if (pi >= path.size()) {
             result.push_back(path);
             return;
         }
-        for (auto iter = visited.begin();
-                iter != visited.end(); ++iter) {
-            if (iter->second == 0) {
-                continue;
+        for (auto &pr : nmap) {
+            if (pr.second > 0) {
+                --pr.second;
+                path[pi] = pr.first;
+                backtrack(result, path, pi + 1, nmap);
+                ++pr.second;
             }
-            iter->second -= 1;
-            path.push_back(iter->first);
-            doperm(num, result, path, idx + 1, visited);
-            path.pop_back();
-            iter->second += 1;
         }
     }
-
+    
     vector<vector<int> > permuteUnique(vector<int> &num) {
-        vector<vector<int> > result;
-        if (num.size() <= 0) {
-            return result;
-        }
-        map<int, int> snum;
+        unordered_map<int, int> nmap;
         for (int n : num) {
-            auto iter = snum.find(n);
-            if (iter == snum.end()) {
-                snum[n] = 1;
-            } else {
-                iter->second += 1;
-            }
+            ++nmap[n];
         }
-        vector<int> path;
-        doperm(num, result, path, 0, snum);
+        vector<vector<int> > result;
+        vector<int> path(num.size());
+        backtrack(result, path, 0, nmap);
         return result;
     }
 };

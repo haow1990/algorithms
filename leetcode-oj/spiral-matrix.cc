@@ -5,46 +5,39 @@ using namespace std;
 class Solution {
 public:
     vector<int> spiralOrder(vector<vector<int> > &matrix) {
-        vector<int> result;
-        if (matrix.empty() || matrix[0].empty()) {
-            return result;
+        if (matrix.empty() || matrix.front().empty()) {
+            return vector<int>();
         }
-        const int m = matrix.size();
-        const int n = matrix[0].size();
-        result.reserve(m * n);
-        
-        int layers = (m + 1) / 2;
-        if (layers > (n + 1) / 2) {
-            layers = (n + 1) / 2;
-        }
-        for (int t = 0; t < layers; ++t) {
-            int mini = t;
-            int minj = t;
-            int maxi = m - 1 -t;
-            int maxj = n - 1 -t;
-            for (int j = minj; j <= maxj; ++j) {
-                result.push_back(matrix[mini][j]);
+        const int M = matrix.size();
+        const int N = matrix[0].size();
+        vector<int> result(M * N);
+        int l = 0, r = N - 1;
+        int t = 0, b = M - 1;
+        int v = 0;
+        while (l <= r && t <= b) {
+            for (int j = l; j <= r; ++j) {
+                result[v++] = matrix[t][j];
             }
-
-            for (int i = mini + 1; i <= maxi; ++i) {
-                result.push_back(matrix[i][maxj]);
+            for (int i = t+1; i <= b; ++i) {
+                result[v++] = matrix[i][r];
             }
-            if (mini == maxi) {
-                continue;
+            if (t != b) {
+                for (int j = r-1; j >= l; --j) {
+                    result[v++] = matrix[b][j];
+                }
             }
-
-            for (int j = maxj - 1; j >= minj; --j) {
-                result.push_back(matrix[maxi][j]);
+            if (l != r) {
+                for (int i = b-1; i > t; --i) {
+                    result[v++] = matrix[i][l];
+                }
             }
-
-            if (minj == maxj) {
-                continue;
-            }
-            for (int i = maxi - 1; i > mini; --i) {
-                result.push_back(matrix[i][minj]);
-            }
+            ++l;
+            --r;
+            ++t;
+            --b;
         }
         return result;
+    
     }
 };
 

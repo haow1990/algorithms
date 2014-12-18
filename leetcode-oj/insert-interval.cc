@@ -13,29 +13,26 @@ struct Interval {
 class Solution {
 public:
     vector<Interval> insert(vector<Interval> &intervals, Interval newInterval) {
-        vector<Interval> result;
-        size_t i = 0;
-        while (i < intervals.size() && intervals[i].end < newInterval.start) {
-            result.push_back(intervals[i]);
-            ++i;
+        vector<Interval> res;
+        auto iter = intervals.begin();
+        while (iter != intervals.end() && iter->start <= newInterval.start) {
+            res.push_back(*iter);
+            ++iter;
         }
-        result.push_back(newInterval);
-        while (i < intervals.size()
-                && result.back().end >= intervals[i].start
-                && result.back().start <= intervals[i].end) {
-            if (intervals[i].start < result.back().start) {
-                result.back().start = intervals[i].start;
-            }
-            if (intervals[i].end > result.back().end) {
-                result.back().end = intervals[i].end;
-            }
-            ++i;
+        if (res.empty() || res.back().end < newInterval.start) {
+            res.push_back(newInterval);
+        } else {
+            res.back().end = max(res.back().end, newInterval.end);
         }
-        while (i < intervals.size()) {
-            result.push_back(intervals[i]);
-            ++i;
+        while (iter != intervals.end() && iter->start <= res.back().end) {
+            res.back().end = max(res.back().end, iter->end);
+            ++iter;
         }
-        return result;
+        while (iter != intervals.end()) {
+            res.push_back(*iter);
+            ++iter;
+        }
+        return res;
     }
 };
 

@@ -7,39 +7,35 @@ using namespace std;
 
 class Solution {
 public:
-    map<int, vector<vector<int> > > cache;
-
-    const vector<vector<int> > &combine(set<int> &candidates, int target)
-    {
-        auto iter = cache.find(target);
-        if (iter != cache.end()) {
-            return iter->second;
-        }
-        iter = cache.insert(make_pair(target, vector<vector<int> >())).first;
-        vector<vector<int> > &result = iter->second;
-        for (int i : candidates) {
-            if (target - i >= 0) {
-                for (auto &vec : combine(candidates, target - i)) {
-                    if (vec.empty() == false && i > vec.front()) {
-                        continue;
-                    }
-                    result.resize(result.size() + 1);
-                    result.back().push_back(i);
-                    result.back().insert(result.back().end(), vec.begin(), vec.end());
-                }
+    void dfs(vector<vector<int> > &result, vector<int> &path, set<int>::iterator current, set<int>::iterator end, int target) {
+        if (target == 0) {
+            if (path.empty() == false) {
+                result.push_back(path);
             }
+            return;
         }
-        return result;
+        if (current == end || *current > target) {
+            return;
+        }
+        auto next = current;
+        ++next;
+        // no add me
+        dfs(result, path, next, end, target);
+        // add me
+        path.push_back(*current);
+        dfs(result, path, current, end, target - *current);
+        path.pop_back();
     }
 
     vector<vector<int> > combinationSum(vector<int> &candidates, int target) {
-        cache.clear();
-        cache[0] = vector<vector<int> >(1);
-        set<int> sc;
-        for (int i : candidates) {
-            sc.insert(i);
+        set<int> nums;
+        for (int v : candidates) {
+            nums.insert(v);
         }
-        return combine(sc, target);
+        vector<int> path;
+        vector<vector<int> > result;
+        dfs(result, path, nums.begin(), nums.end(), target);
+        return result;
     }
 };
 

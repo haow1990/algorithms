@@ -5,42 +5,35 @@ using namespace std;
 
 class Solution {
 public:
-    vector<string> nmap;
-
-    bool dfs(vector<string> &result, const string &digits, size_t i, string &path)
-    {
+    void dfs(vector<string> &result, string &path, vector<string> &nums, string &digits, int i) {
         if (i >= digits.size()) {
             result.push_back(path);
-            return true;
+            return;
         }
-        if (digits[i] < '2' || digits[i] > '9') {
-            return false;
+        for (char c : nums[digits[i] - '0']) {
+            path[i] = c;
+            dfs(result, path, nums, digits, i + 1);
         }
-        for (char c : nmap[digits[i] - '2']) {
-            path.push_back(c);
-            if (dfs(result, digits, i + 1, path) == false) {
-                return false;
-            }
-            path.pop_back();
-        }
-        return true;
     }
 
     vector<string> letterCombinations(string digits) {
-        if (nmap.empty()) {
-            nmap.push_back("abc");
-            nmap.push_back("def");
-            nmap.push_back("ghi");
-            nmap.push_back("jkl");
-            nmap.push_back("mno");
-            nmap.push_back("pqrs");
-            nmap.push_back("tuv");
-            nmap.push_back("wxyz");
-        }
+        vector<string> nums{
+            "",
+            "",
+            "abc",
+            "def",
+            "ghi",
+            "jkl",
+            "mno",
+            "pqrs",
+            "tuv",
+            "wxyz"
+        };
         vector<string> result;
-        string path;
-        dfs(result, digits, 0, path);
+        string path(digits.size(), 0);
+        dfs(result, path, nums, digits, 0);
         return result;
+    
     }
 };
 

@@ -6,80 +6,38 @@
 #include <algorithm>
 using namespace std;
 
-struct xy {
-    int x;
-    int y;
-
-    xy(int xx, int yy)
-        : x(xx), y(yy)
-    {}
-};
-
-struct xyz {
-    int x;
-    int y;
-    int z;
-
-    xyz(int xx, int yy, int zz)
-        : x(xx), y(yy), z(zz)
-    {}
-};
-
-struct myhash {
-    size_t operator()(const xyz &val) const
-    {
-        return val.x * val.x + val.y * val.y + val.z * val.z;
+struct myhash{
+    size_t operator()(const tuple<int, int, int> &tpl)const {
+        return get<0>(tpl) * get<0>(tpl) + get<1>(tpl) * get<1>(tpl) + get<2>(tpl) * get<2>(tpl);
     }
 };
-
-bool operator==(const xyz &val1, const xyz &val2)
-{
-    return val1.x == val2.x
-            && val1.y == val2.y
-            && val1.z == val2.z;
-}
 
 class Solution {
 public:
     vector<vector<int> > threeSum(vector<int> &num) {
-        unordered_map<int, vector<xy> > twosum;
+        unordered_multimap<int, pair<int, int> > combs;
         for (int i = 0; i < num.size(); ++i) {
             for (int j = i + 1; j < num.size(); ++j) {
-                int sum = num[i] + num[j];
-                auto iter = twosum.find(sum);
-                if (iter == twosum.end()) {
-                    iter = twosum.insert(make_pair(sum, vector<xy>())).first;
-                }
-                iter->second.push_back(xy(i, j));
+                combs.insert(make_pair(num[i] + num[j], make_pair(i, j)));
             }
         }
+        unordered_set<tuple<int, int, int>, myhash> rset;
         vector<vector<int> > result;
-        unordered_set<xyz, myhash> visited;
-        vector<int> vv(3);
         for (int i = 0; i < num.size(); ++i) {
-            auto iter = twosum.find(0 - num[i]);
-            if (iter == twosum.end()) {
-                continue;
-            }
-            for (auto xy1 : iter->second) {
-                if (i == xy1.x || i == xy1.y) {
+            auto range = combs.equal_range(0 - num[i]);
+            for (auto iter = range.first; iter != range.second; ++iter) {
+                if (i == iter->second.first || i == iter->second.second) {
                     continue;
                 }
-                vv[0] = num[i];
-                vv[1] = num[xy1.x];
-                vv[2] = num[xy1.y];
-                sort(vv.begin(), vv.end());
-                xyz xyz1(vv[0], vv[1], vv[2]);
-                if (visited.count(xyz1) > 0) {
-                    continue;
+                vector<int> v{num[i], num[iter->second.first], num[iter->second.second]};
+                sort(v.begin(), v.end());
+                if (rset.insert(make_tuple(v[0], v[1], v[2])).second) {
+                    result.push_back(v);
                 }
-                result.push_back(vv);
-                visited.insert(xyz1);
             }
-
-            twosum.erase(iter);
         }
         return result;
+    
     }
 };
 

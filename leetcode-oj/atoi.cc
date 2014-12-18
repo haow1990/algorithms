@@ -5,54 +5,45 @@ using namespace std;
 class Solution {
 public:
     int atoi(const char *str) {
-        if (str == NULL)
+        if (str == nullptr) {
             return 0;
-        bool whites[256] = {};
-        whites[' '] = true;
-        whites['\t'] = true;
-        whites['\n'] = true;
-        whites['\r'] = true;
-        
-        bool digits[256] = {};
-        for (char c = '0'; c <= '9'; ++c) {
-            digits[c] = true;
         }
+        bool blank[256] = {};
+        blank[' '] = true;
+        blank['\t'] = true;
+        blank['\n'] = true;
+        blank['\r'] = true;
         
         int i = 0;
-        while (str[i] && whites[str[i]]) {
+        // skip none digits
+        while (str[i] != '\0' && blank[str[i]]) {
             ++i;
         }
-        if (!digits[str[i]] && str[i] != '+' && str[i] != '-') {
-            return 0;
-        }
+        // sign
         bool negative = false;
-        if (str[i] == '+') {
-            ++i;
-        } else if (str[i] == '-') {
+        if (str[i] == '-') {
             ++i;
             negative = true;
-        }
-        int number = 0;
-        bool overflow = false;
-        while (digits[str[i]]) {
-            if (number > INT_MAX / 10) {
-                overflow = true;
-                break;
-            }
-            number = number * 10 + str[i] - '0';
-            if (number < 0) {
-                overflow = true;
-                break;
-            }
+        } else if (str[i] == '+') {
             ++i;
         }
-        if (negative) {
-            if (overflow)   return INT_MIN;
-            else    return -1 * number;
-        } else {
-            if (overflow)   return INT_MAX;
-            else    return number;
+        int result = 0;
+        bool overflow = false;
+        while (str[i] >= '0' && str[i] <= '9') {
+            int d = str[i] - '0';
+            if (result > (INT_MAX - d) / 10) {
+                overflow = true;
+                break;
+            }
+            result = result * 10 + d;
+            ++i;
         }
+        if (overflow) {
+            return negative ? INT_MIN : INT_MAX;
+        } else {
+            return negative ? -result : result;
+        }
+    
     }
 };
 
